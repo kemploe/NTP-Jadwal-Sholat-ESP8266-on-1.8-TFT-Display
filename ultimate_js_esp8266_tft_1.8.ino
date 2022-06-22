@@ -90,7 +90,7 @@ void setup() {
 
     // reset settings - wipe stored credentials for testing
     // these are stored by the esp library
-    // wfm.resetSettings();
+    wfm.resetSettings();
 
     // Automatically connect using saved credentials,
     // if connection fails, it starts an access point with the specified name ( "AutoConnectAP" ),
