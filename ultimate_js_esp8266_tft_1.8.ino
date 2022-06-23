@@ -11,7 +11,7 @@
 // Fixed Parameters
 const int   time_zone = +7;                 // WIB (UTC + 7) = +7
 const char * ntp_pool = "id.pool.ntp.org";  // NTP Server pool address
-const long ntp_update = 300000;             // NTP Client update interval in millisecond (every 5 minutes)
+const long ntp_update = 300000;             // NTP Client update interval in millisecond (ms)
 const int     id_kota = 1301;               // See https://api.myquran.com/v1/sholat/kota/semua
 const int   dutyCycle = 72;                 // Set TFT brightness using PWM duty cycle (0-255)
 String    newHostname = "JamSholat";        // Set hostname to "JamSholat"
@@ -86,20 +86,26 @@ void setup() {
   WiFiManager wfm;
 
     // Supress Debug information
-    wfm.setDebugOutput(false);
+    wfm.setDebugOutput(true);
 
     // reset settings - wipe stored credentials for testing
     // these are stored by the esp library
-    wfm.resetSettings();
+    // wfm.resetSettings();
 
     // Automatically connect using saved credentials,
     // if connection fails, it starts an access point with the specified name ( "AutoConnectAP" ),
     // if empty will auto generate SSID, if password is blank it will be anonymous AP (wm.autoConnect())
     // then goes into a blocking loop awaiting configuration and will return success result
 
+    Serial.println("WiFi connecting");
+    tft.setCursor(40, 20);                    // move cursor to position (40, 20) pixel
+    tft.print("WiFi connecting");
+
     if (!wfm.autoConnect( "JamSholat" )) {
       // Did not connect, print error message
       Serial.println("failed to connect and hit timeout");
+      tft.setCursor(40, 30);                  // move cursor to position (40, 30) pixel
+      tft.print("failed to connect and hit timeout");
    
       // Reset and try again
       ESP.restart();
@@ -110,6 +116,11 @@ void setup() {
     Serial.println("WiFi connected");
     Serial.print("IP address: ");
     Serial.println(WiFi.localIP());
+    tft.setCursor(40, 40);                   // move cursor to position (40, 40) pixel
+    tft.print("WiFi connected");
+    tft.setCursor(40, 60);                   // move cursor to position (40, 60) pixel
+    tft.print(WiFi.localIP());
+    delay(3000);
 
   // set hostname
   WiFi.hostname(newHostname.c_str());
@@ -124,8 +135,6 @@ void setup() {
   delay (500);
   }
   Serial.print ( "Clock initialized\r\n");
-  tft.setCursor(20, 67);                    // move cursor to position (20, 67) pixel
-  tft.print("Clock initialized");
 
   tft.fillScreen(BLACK);                    // blanking display
 
