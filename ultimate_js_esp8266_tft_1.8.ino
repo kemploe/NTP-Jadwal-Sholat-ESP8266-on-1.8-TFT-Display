@@ -11,7 +11,7 @@
 // Fixed Parameters
 const int   time_zone = +7;                 // WIB (UTC + 7) = +7
 const char * ntp_pool = "id.pool.ntp.org";  // NTP Server pool address
-const long ntp_update = 60000;              // NTP Client update interval in millisecond (ms)
+const long ntp_update = 300000;             // NTP Client update interval in millisecond (every 5 minutes)
 const int     id_kota = 1301;               // See https://api.myquran.com/v1/sholat/kota/semua
 const int   dutyCycle = 72;                 // Set TFT brightness using PWM duty cycle (0-255)
 String    newHostname = "JamSholat";        // Set hostname to "JamSholat"
@@ -30,14 +30,14 @@ char b_isya[10];
 unsigned long unix_epoch;
 
 // PWM output pin
-uint8_t LEDpin  = D1;           // TFT LED  pin is connected to NodeMCU pin D1 (GPIO10)
+uint8_t LEDpin  = 5;           // TFT LED  pin is connected to NodeMCU pin D1 (GPIO5)
 
 // Pin assignment for 1.8" TFT display with ST7735
-#define TFT_DC    D2            // TFT DC   pin is connected to NodeMCU pin D2 (GPIO4)
-#define TFT_CS    D3            // TFT CS   pin is connected to NodeMCU pin D3 (GPIO0)
-#define TFT_RST   D4            // TFT RST  pin is connected to NodeMCU pin D4 (GPIO2)
-//#define TFT_SCLK  D5            // TFT SCLK pin is connected to NodeMCU pin D5 (GPIO14)
-//#define TFT_MOSI  D7            // TFT MOSI pin is connected to NodeMCU pin D7 (GPIO13)
+#define TFT_DC    4            // TFT DC   pin is connected to NodeMCU pin D2 (GPIO4)
+#define TFT_CS    0            // TFT CS   pin is connected to NodeMCU pin D3 (GPIO0)
+#define TFT_RST   2            // TFT RST  pin is connected to NodeMCU pin D4 (GPIO2)
+#define TFT_SCLK  14           // TFT SCLK pin is connected to NodeMCU pin D5 (GPIO14)
+#define TFT_MOSI  13           // TFT MOSI pin is connected to NodeMCU pin D7 (GPIO13)
 
 // 1.8" TFT display with ST7735
 Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_RST);
