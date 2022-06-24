@@ -17,23 +17,28 @@ NodeMCU ESP8266 - Jadwal Sholat berbasis NTP dengan 1.8" TFT SPI Display
 
 3. Wiring the 1.8" TFT display to NodeMCU
 
-    Display - NodeMCU
-    
-      Vcc   -   5V or 3.3V
-      
-      GND   -   GND
-      
-      CS    -   GPIO 0
-      
-     RESET  -   GPIO 2
-     
-      A0    -   GPIO 4
-      SDA   -   GPIO 13
-      
-      SCK   -   GPIO 14
-      
-      LED   -   GPIO 5
+            Display <---> NodeMCU
+
+                VCC <---> 5V or 3.3V
+
+                GND <---> GND
+
+                 CS <---> GPIO 0
         
+          RESET/RST <---> GPIO 2
+
+              A0/DC <---> GPIO 4
+
+           SDA/MOSI <---> GPIO 13
+
+           SCK/SCLK <---> GPIO 14
+
+             BL/LED <---> GPIO 5
+        
+Note:
+
+On some Adafruit compatible 1.8" TFT SPI display, RESET is RST, A0 is DC, SDA is MOSI, SCK is SCLK and LED is BL. So pay attention to your wiring, check it twice before powering up the device. 
+
 
 
 
