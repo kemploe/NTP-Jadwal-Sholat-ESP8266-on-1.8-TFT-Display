@@ -15,7 +15,7 @@ NodeMCU ESP8266 - Jadwal Sholat berbasis NTP dengan 1.8" TFT SPI Display
    - Jumpers                - https://bit.ly/39KrPdJ or equivalent. 
 
 
-3. Wiring the 1.8" TFT display to NodeMCU
+3. Wiring the 1.8" TFT SPI display to NodeMCU
 
             Display <---> NodeMCU
 
@@ -38,6 +38,8 @@ NodeMCU ESP8266 - Jadwal Sholat berbasis NTP dengan 1.8" TFT SPI Display
 Note:
 
 On some Adafruit compatible 1.8" TFT SPI display, RESET is RST, A0 is DC, SDA is MOSI, SCK is SCLK and LED is BL. So pay attention to your wiring, check it twice before powering up the device. 
+
+4. Operating the Clock
 
 
 
