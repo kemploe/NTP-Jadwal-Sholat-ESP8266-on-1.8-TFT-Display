@@ -5,7 +5,7 @@ NodeMCU ESP8266 - Jadwal Sholat berbasis NTP dengan 1.8" TFT SPI Display
 
     This is basically a NTP clock running on NodeMCU ESP8266 with Adafruit compatible 1.8" TFT SPI display. 
     
-    Adding Jadwal Sholat (Salat Time) by requesting the table from https://api.myquran.com on a daily basis.
+    Adding Jadwal Sholat (Salat Time) by requesting it from https://api.myquran.com on a daily basis.
 
 
 2. Bill of Material (BOM)
@@ -20,12 +20,18 @@ NodeMCU ESP8266 - Jadwal Sholat berbasis NTP dengan 1.8" TFT SPI Display
     Display - NodeMCU
     
       Vcc   -   5V or 3.3V
+      
       GND   -   GND
+      
       CS    -   GPIO 0
+      
      RESET  -   GPIO 2
+     
       A0    -   GPIO 4
       SDA   -   GPIO 13
+      
       SCK   -   GPIO 14
+      
       LED   -   GPIO 5
         
 
