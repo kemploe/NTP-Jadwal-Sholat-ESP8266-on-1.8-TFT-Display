@@ -1,4 +1,4 @@
-# NTP-Jadwal-Sholat-ESP8266-on-TFT-1.8-Display
+# NTP-Jadwal-Sholat-ESP8266-on-1.8-TFT-Display
 NodeMCU ESP8266 - Jadwal Sholat berbasis NTP dengan 1.8" TFT SPI Display
 
 ## 1. Introduction
