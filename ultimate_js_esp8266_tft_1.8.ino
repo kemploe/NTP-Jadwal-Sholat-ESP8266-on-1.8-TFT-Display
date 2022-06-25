@@ -26,11 +26,11 @@ char b_ashar[10];
 char b_maghrib[10];
 char b_isya[10];
 
-// UNIX time since 1970 in seconds
+// Elapsed time since 1 Jan 1970 in seconds
 unsigned long unix_epoch;
 
 // PWM output pin
-uint8_t led_pin  = 5;           // TFT LED/BL    pin is connected to NodeMCU pin D1 (GPIO5)
+uint8_t led_pin = 5;           // TFT LED/BL    pin is connected to NodeMCU pin D1 (GPIO5)
 
 // Pin assignment for 1.8" TFT display with ST7735
 #define TFT_A0    4            // TFT DC/A0     pin is connected to NodeMCU pin D2 (GPIO4)
@@ -40,7 +40,7 @@ uint8_t led_pin  = 5;           // TFT LED/BL    pin is connected to NodeMCU pin
 #define TFT_SDA   13           // TFT SDA/MOSI  pin is connected to NodeMCU pin D7 (GPIO13)
 
 // 1.8" TFT display with ST7735
-Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_RST);
+Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_A0, TFT_RST);
 
 // TFT Display Colors
 #define RGB(r, g, b) (((r&0xF8)<<8)|((g&0xFC)<<3)|(b>>3))
@@ -65,14 +65,15 @@ Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_RST);
 #define GREEN       RGB(  0, 255,   0)
 
 // NTP client setup, this must reside before setup
-  WiFiUDP ntpUDP;
   int utc_offset = ( time_zone * 3600 );
+  WiFiUDP ntpUDP;
   NTPClient timeClient( ntpUDP, ntp_pool, utc_offset, ntp_update );
 
 // SETUP
-void setup() {
+void setup()
+{
   // initializing 1.8" TFT display
-  analogWrite(led_pin, duty_cycle);     // set display brightness
+  analogWrite(led_pin, duty_cycle);   // set display brightness
   tft.initR(INITR_BLACKTAB);          // initialize TFT display with ST7735 chip
   tft.setRotation(1);                 // set display orientation
   tft.fillScreen(BLACK);              // blanking display
@@ -90,7 +91,7 @@ void setup() {
 
     // reset settings - wipe stored credentials for testing
     // these are stored by the esp library
-    // wfm.resetSettings();
+    wfm.resetSettings();
 
     // Automatically connect using saved credentials,
     // if connection fails, it starts an access point with the specified name ( "AutoConnectAP" ),
@@ -162,7 +163,8 @@ void setup() {
 }
 
 // MAIN LOOP
-void loop() {
+void loop()
+{
   timeClient.update();                      // requesting time from NTP server
   unix_epoch = timeClient.getEpochTime();   // get UNIX Epoch time from NTP server
 
@@ -231,7 +233,8 @@ void CST()
 }
 
 // JADWAL SHOLAT FUNCTION
-void JS() {
+void JS()
+{
   WiFiClientSecure client;
   client.setInsecure();                       // use with caution
   client.connect ( "api.myquran.com", 80 );
