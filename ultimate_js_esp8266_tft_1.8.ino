@@ -2,21 +2,21 @@
 #include <ArduinoJson.h>
 #include <ESP8266HTTPClient.h>
 #include <ESP8266WiFi.h>
+#include <ezTime.h>
 #include <NTPClient.h>
-#include <TimeLib.h>
 #include <WiFiClientSecure.h>
 #include <WiFiManager.h>
 #include <WiFiUdp.h>
 
-// Fixed Parameters
-const int   time_zone = +7;                 // WIB (UTC + 7) = +7
+// Fixed parameters
+const int   time_zone = +7;                 // WIB (UTC + 7)
 const char * ntp_pool = "id.pool.ntp.org";  // NTP Server pool address
-const long ntp_update = 300000;             // NTP Client update interval in millisecond (ms)
+const long ntp_update = 60000;              // NTP Client update interval in millisecond (ms)
 const int     id_kota = 1301;               // See https://api.myquran.com/v1/sholat/kota/semua
-const int  duty_cycle = 72;                 // Set TFT brightness using PWM duty cycle (0-255)
-String   new_hostname = "JamSholat";        // Set hostname to "JamSholat"
+const int  duty_cycle = 72;                 // TFT brightness using PWM duty cycle (0-255)
+String   new_hostname = "JamSholat";
 
-// Buffers for JSON Payload String to Character conversion
+// Buffers for JSON payload string to character conversion
 char b_imsak[10];
 char b_subuh[10];
 char b_terbit[10];
@@ -29,22 +29,23 @@ char b_isya[10];
 // Elapsed time since 1 Jan 1970 in seconds
 unsigned long unix_epoch;
 
-// PWM output pin
-uint8_t led_pin = 5;           // TFT LED/BL    pin is connected to NodeMCU pin D1 (GPIO5)
+// Pin assignment for PWM output to set TFT backlight brightness
+uint8_t led_pin = 5;           // TFT LED/BL    pin is connected to NodeMCU pin D1 (GPIO 5)
 
 // Pin assignment for 1.8" TFT display with ST7735
-#define TFT_A0    4            // TFT DC/A0     pin is connected to NodeMCU pin D2 (GPIO4)
-#define TFT_CS    0            // TFT CS        pin is connected to NodeMCU pin D3 (GPIO0)
-#define TFT_RST   2            // TFT RST/RESET pin is connected to NodeMCU pin D4 (GPIO2)
-#define TFT_SCK   14           // TFT SCK/SCLK  pin is connected to NodeMCU pin D5 (GPIO14)
-#define TFT_SDA   13           // TFT SDA/MOSI  pin is connected to NodeMCU pin D7 (GPIO13)
+#define TFT_A0    4            // TFT DC/A0     pin is connected to NodeMCU pin D2 (GPIO 4)
+#define TFT_CS    0            // TFT CS        pin is connected to NodeMCU pin D3 (GPIO 0)
+#define TFT_RST   2            // TFT RST/RESET pin is connected to NodeMCU pin D4 (GPIO 2)
+#define TFT_SCK   14           // TFT SCK/SCLK  pin is connected to NodeMCU pin D5 (GPIO 14)
+#define TFT_SDA   13           // TFT SDA/MOSI  pin is connected to NodeMCU pin D7 (GPIO 13)
 
 // 1.8" TFT display with ST7735
 Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_A0, TFT_RST);
 
-// TFT Display Colors
-#define RGB(r, g, b) (((r&0xF8)<<8)|((g&0xFC)<<3)|(b>>3))
+// Convert RGB colors
+#define RGB(r, g, b) ((( r & 0xF8 ) << 8)|(( g & 0xFC ) << 3 )|( b >> 3 ))
 
+// TFT display colors
 #define BLACK       RGB(  0,   0,   0)
 #define AQUAMARINE  RGB(127, 255, 212)
 #define GREY        RGB(128, 128, 128)
@@ -64,7 +65,10 @@ Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_A0, TFT_RST);
 #define BLUE        RGB(  0,   0, 255)
 #define GREEN       RGB(  0, 255,   0)
 
-// NTP client setup, this must reside before setup
+#define SYNC_MARGINAL 3600             // orange status if no sync for 1 hour
+#define SYNC_LOST 86400                // red status if no sync for 1 day
+
+// NTP client setup, this must be done before setup
   int utc_offset = ( time_zone * 3600 );
   WiFiUDP ntpUDP;
   NTPClient timeClient( ntpUDP, ntp_pool, utc_offset, ntp_update );
@@ -91,7 +95,7 @@ void setup()
 
     // reset settings - wipe stored credentials for testing
     // these are stored by the esp library
-    wfm.resetSettings();
+    // wfm.resetSettings();
 
     // Automatically connect using saved credentials,
     // if connection fails, it starts an access point with the specified name ( "AutoConnectAP" ),
@@ -99,7 +103,7 @@ void setup()
     // then goes into a blocking loop awaiting configuration and will return success result
 
     Serial.println("WiFi connecting");
-    tft.setCursor(40, 20);                    // move cursor to position (40, 20) pixel
+    tft.setCursor(38, 20);                    // move cursor to position (38, 20) pixel
     tft.print("WiFi connecting");
 
     if (!wfm.autoConnect( "JamSholat" )) {
@@ -168,8 +172,10 @@ void loop()
   timeClient.update();                      // requesting time from NTP server
   unix_epoch = timeClient.getEpochTime();   // get UNIX Epoch time from NTP server
 
+  events();
   CST();                                    // requesting Clock and Salat Time
   delay(200);                               // wait 200ms
+  CStat();
 }
 
 // CLOCK AND SALAT TIME FUNCTION
@@ -194,7 +200,7 @@ void CST()
 
     tft.fillRect(5, 89, 150, 11, BLACK);      // fill rectangle (x,y,w,h,color)
     tft.setTextSize(1);                       // text size = 1
-    tft.setTextColor(RED, BLACK);             // set text color to red and black background
+    tft.setTextColor(YELLOW, BLACK);             // set text color to red and black background
     tft.setCursor(8, 90);                     // move cursor to position (8, 90) pixel
     tft.print( b_imsak );
     tft.setCursor(43, 90);                    // move cursor to position (43, 90) pixel
@@ -218,7 +224,7 @@ void CST()
   // print date
   tft.setTextSize(2);                         // text size = 2
   tft.setCursor(22, 21);                      // move cursor to position (22, 21) pixel
-  tft.setTextColor(YELLOW, BLACK);            // set text color to yellow and black background
+  tft.setTextColor(LIGHTGREY, BLACK);         // set text color to yellow and black background
   tft.printf( "%02u/%02u/%04u", day(unix_epoch), month(unix_epoch), year(unix_epoch) );
 
   // print time
@@ -279,4 +285,19 @@ void JS()
     return;
   }
 }
+
+// Clock Status Function - inspired by W8BH - Bruce Hall - https://github.com/bhall66/NTP-clock
+void CStat()
+{
+  int color;
+  if (second()%10) return;                      // update every 10 seconds 
+  int syncAge = now()-lastNtpUpdateTime();      // how long since last sync?
+  if (syncAge < SYNC_MARGINAL)                  // time is good & in sync
+    color = GREEN;
+  else if (syncAge < SYNC_LOST)                 // sync is 1-24 hours old
+    color = YELLOW;
+  else color = RED;                             // time is stale!
+  tft.fillRoundRect(145, 3, 10, 10, 10, color); // show clock status as a color
+}
+
 // PROGRAM END
