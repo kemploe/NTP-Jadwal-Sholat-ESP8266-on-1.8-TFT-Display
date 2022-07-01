@@ -24,7 +24,7 @@ This is basically a NTP clock running on NodeMCU ESP8266 with Adafruit compatibl
      SCK/SCLK <---> GPIO 14
        LED/BL <---> GPIO 5
 
-![1.8" TFT SPI Display](https://github.com/kemploe/NTP-Jadwal-Sholat-ESP8266-on-1.8-TFT-Display/blob/main/2022-07-01_082841.png?raw=true)
+![1.8" TFT SPI Display](https://github.com/kemploe/NTP-Jadwal-Sholat-ESP8266-on-1.8-TFT-Display/blob/main/images/2022-07-01_082841.png)
 
 Note:
 On some Adafruit compatible 1.8" TFT SPI display, RESET is RST, A0 is DC, SDA is MOSI, SCK is SCLK and LED is BL. So pay attention to your wiring, check it twice before powering up the device. 
