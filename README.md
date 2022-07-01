@@ -22,7 +22,7 @@ This is basically a NTP clock running on NodeMCU ESP8266 with Adafruit compatibl
         A0/DC <---> GPIO 4
      SDA/MOSI <---> GPIO 13
      SCK/SCLK <---> GPIO 14
-       BL/LED <---> GPIO 5
+       LED/BL <---> GPIO 5
 
 ![1.8" TFT SPI Display](https://github.com/kemploe/NTP-Jadwal-Sholat-ESP8266-on-1.8-TFT-Display/blob/main/2022-07-01_082841.png?raw=true)
 
@@ -31,6 +31,6 @@ On some Adafruit compatible 1.8" TFT SPI display, RESET is RST, A0 is DC, SDA is
 
 ## 4. How it works
 
-
+Upon start up the WiFiManager kicks in. If a saved WiFi configuration found it will configure NodeMCU as a WiFi Station (STA) and connect to the WiFi Access Point that is configured in the saved configuration. Otherwise it will configure NodeMCU as an Access Point with SSID: "JamSholat" and spawn a web page that you can connect using your Smartphone. Once the WiFi has been configured it will switch to STA mode and start the clock.
 
 
