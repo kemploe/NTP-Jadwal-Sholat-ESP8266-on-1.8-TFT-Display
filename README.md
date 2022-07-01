@@ -1,7 +1,7 @@
 # NTP-Jadwal-Sholat-ESP8266-on-1.8-TFT-Display
 NodeMCU ESP8266 - Jadwal Sholat berbasis NTP dengan 1.8" TFT SPI Display
 
-![NTP Jadwal Sholat](https://github.com/kemploe/NTP-Jadwal-Sholat-ESP8266-on-1.8-TFT-Display/blob/main/2022-07-01_083105.png?raw=true)
+![NTP Jadwal Sholat](https://github.com/kemploe/NTP-Jadwal-Sholat-ESP8266-on-1.8-TFT-Display/blob/main/images/2022-07-02_012745.png)
 
 ## 1. Introduction
 
@@ -33,4 +33,13 @@ On some Adafruit compatible 1.8" TFT SPI display, RESET is RST, A0 is DC, SDA is
 
 Upon start up the WiFiManager kicks in. If a saved WiFi configuration found it will configure NodeMCU as a WiFi Station (STA) and connect to the WiFi Access Point that is configured in the saved configuration. Otherwise it will configure NodeMCU as an Access Point with SSID: "JamSholat" and spawn a web page that you can connect and configure using your Smartphone. Once the WiFi has been configured it will switch to STA mode and start the clock.
 
+![Configure WiFi](https://github.com/kemploe/NTP-Jadwal-Sholat-ESP8266-on-1.8-TFT-Display/blob/main/images/2022-07-02_012612.png)
+
+![Configure WiFi](https://github.com/kemploe/NTP-Jadwal-Sholat-ESP8266-on-1.8-TFT-Display/blob/main/images/2022-07-02_012636.png)
+
+![Configure WiFi](https://github.com/kemploe/NTP-Jadwal-Sholat-ESP8266-on-1.8-TFT-Display/blob/main/images/2022-07-02_012656.png)
+
+![Configure WiFi](https://github.com/kemploe/NTP-Jadwal-Sholat-ESP8266-on-1.8-TFT-Display/blob/main/images/2022-07-02_012714.png)
+
+![Configure WiFi](https://github.com/kemploe/NTP-Jadwal-Sholat-ESP8266-on-1.8-TFT-Display/blob/main/images/2022-07-02_012730.png)
 
