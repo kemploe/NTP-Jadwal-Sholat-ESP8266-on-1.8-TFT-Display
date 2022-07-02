@@ -10,7 +10,7 @@
 #include <WiFiManager.h>
 #include <WiFiUdp.h>
 
-// Adjustable parameters
+// Fixed parameters
 const int   time_zone = +7;                 // WIB (UTC + 7)
 const char * ntp_pool = "id.pool.ntp.org";  // NTP Server pool address
 const long ntp_update = 600000;             // NTP Client update interval in millisecond (ms)
@@ -34,14 +34,14 @@ unsigned long unix_epoch;
 // Pin assignment for PWM output to set TFT backlight brightness
 uint8_t led_pin = 5;           // TFT LED/BL    pin is connected to NodeMCU pin D1 (GPIO 5)
 
-// Pin assignment for 1.8" TFT display with ST7735 driver
+// Pin assignment for 1.8" TFT display with ST7735
 #define TFT_A0    4            // TFT DC/A0     pin is connected to NodeMCU pin D2 (GPIO 4)
 #define TFT_CS    0            // TFT CS        pin is connected to NodeMCU pin D3 (GPIO 0)
 #define TFT_RST   2            // TFT RST/RESET pin is connected to NodeMCU pin D4 (GPIO 2)
 #define TFT_SCK   14           // TFT SCK/SCLK  pin is connected to NodeMCU pin D5 (GPIO 14)
 #define TFT_SDA   13           // TFT SDA/MOSI  pin is connected to NodeMCU pin D7 (GPIO 13)
 
-// 1.8" TFT display with ST7735 driver construct
+// 1.8" TFT display with ST7735
 Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_A0, TFT_RST);
 
 // Convert RGB colors
@@ -97,7 +97,7 @@ void setup()
 
     // reset settings - wipe stored credentials for testing
     // these are stored by the esp library
-    wfm.resetSettings();
+    // wfm.resetSettings();
 
     // Automatically connect using saved credentials,
     // if connection fails, it starts an access point with the specified name ( "AutoConnectAP" ),
@@ -134,14 +134,7 @@ void setup()
 
 // Initializing NTP client
   timeClient.begin();
-  delay (500);
-
-  while ( unix_epoch == 0 ) {
-    timeClient.update();                    // requesting time from NTP server
-    unix_epoch = timeClient.getEpochTime(); // get UNIX epoch time from NTP server
   delay (100);
-  }
-  Serial.print ( "Clock initialized\r\n");
 
   tft.fillScreen(BLACK);                    // blanking display
 
@@ -307,14 +300,14 @@ void CSTATUS()
     color = YELLOW;
   else color = RED;                                 // time is stale!
   tft.setTextSize(1);                               // text size = 1
-  tft.setTextColor(color, BLACK);                   // set text color to ntp status 'color' and black background
+  tft.setTextColor(color, BLACK);                   // set text color to yellow and black background
   tft.setCursor(6, 15);                             // move cursor to position (6, 13) pixel
   tft.print( "N" );
   tft.setCursor(6, 25);                             // move cursor to position (6, 23) pixel
   tft.print( "T" );
   tft.setCursor(6, 35);                             // move cursor to position (6, 33) pixel
   tft.print( "P" );
-  tft.fillRoundRect( 5, 50, 7, 7, 10, color );      // show clock status as a 'color'
+  tft.fillRoundRect( 5, 50, 7, 7, 10, color );      // show clock status as a color
 }
 
 // PROGRAM END
