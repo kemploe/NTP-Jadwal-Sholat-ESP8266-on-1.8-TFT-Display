@@ -1,3 +1,5 @@
+// NodeMCU ESP8266
+
 #include <Adafruit_ST7735.h>
 #include <ArduinoJson.h>
 #include <ESP8266HTTPClient.h>
@@ -11,7 +13,7 @@
 // Fixed parameters
 const int   time_zone = +7;                 // WIB (UTC + 7)
 const char * ntp_pool = "id.pool.ntp.org";  // NTP Server pool address
-const long ntp_update = 60000;              // NTP Client update interval in millisecond (ms)
+const long ntp_update = 600000;             // NTP Client update interval in millisecond (ms)
 const int     id_kota = 1301;               // See https://api.myquran.com/v1/sholat/kota/semua
 const int  duty_cycle = 72;                 // TFT brightness using PWM duty cycle (0-255)
 String   new_hostname = "JamSholat";
@@ -65,7 +67,7 @@ Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_A0, TFT_RST);
 #define BLUE        RGB(  0,   0, 255)
 #define GREEN       RGB(  0, 255,   0)
 
-#define SYNC_MARGINAL 3600             // orange status if no sync for 1 hour
+#define SYNC_MARGINAL 3600             // yellow status if no sync for 1 hour
 #define SYNC_LOST 86400                // red status if no sync for 1 day
 
 // NTP client setup, this must be done before setup
@@ -137,13 +139,15 @@ void setup()
   while ( unix_epoch == 0 ) {
     timeClient.update();                    // requesting time from NTP server
     unix_epoch = timeClient.getEpochTime(); // get UNIX epoch time from NTP server
-  delay (500);
+  delay (100);
   }
   Serial.print ( "Clock initialized\r\n");
 
   tft.fillScreen(BLACK);                    // blanking display
 
-  tft.drawRect(0, 73, tft.width(), 55, WHITE);  // draw rectangle (x, y, w, h, color)
+  // draw rectangle frames on display
+  tft.drawRect(0, 0, 16, 70, WHITE);        // draw rectangle (x, y, w, h, color)
+  tft.drawRect(0, 73, 160, 55, WHITE);      // draw rectangle (x, y, w, h, color)
   
   tft.setTextSize(1);                       // text size = 1
   tft.setTextColor(CYAN, BLACK);            // set text color to cyan and black background
@@ -172,25 +176,36 @@ void loop()
   timeClient.update();                      // requesting time from NTP server
   unix_epoch = timeClient.getEpochTime();   // get UNIX Epoch time from NTP server
 
-  events();
+  if ( second()%1 ) return;                 // update every 1 second
+  events();                                 // update ntp
   CST();                                    // requesting Clock and Salat Time
-  delay(200);                               // wait 200ms
-  CStat();
+  CSTATUS();
 }
 
 // CLOCK AND SALAT TIME FUNCTION
 void CST()
 {
-  // creating day of week (dow) and it's absolute x position array
+  // print time
+  tft.setTextSize(3);                         // text size = 3
+  tft.setCursor(28, 42);                      // move cursor to position (20, 42) pixel
+  tft.setTextColor(LIGHTGREY, BLACK);         // set text color to lightgrey and black background
+  tft.printf( "%02u:%02u", hour(unix_epoch), minute(unix_epoch) );
+
+  // print seconds
+  tft.setTextSize(2);                         // text size = 2
+  tft.setCursor(114, 49);                     // move cursor to position (108, 49) pixel
+  tft.printf( ":%02u", second(unix_epoch) );
+
+  // creating day of week (dow) and it's corresponding absolute x position array
   char dow_matrix[7][10] = {"Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jum'at", "Sabtu"};
-  byte x_pos[7] = {47, 53, 47, 59, 53, 47, 53};
+  byte x_pos[7] = {53, 59, 53, 65, 59, 53, 59};
   static byte previous_dow = 0;
 
   // print day of the week (dow)
   if( previous_dow != weekday(unix_epoch) )
   {
     previous_dow = weekday(unix_epoch);
-    tft.fillRect(10, 0, 140, 16, BLACK);      // fill rectangle (x,y,w,h,color) (erase day from the display)
+    tft.fillRect(17, 0, 140, 16, BLACK);      // fill rectangle (x,y,w,h,color) (erase day from the display)
     tft.setTextSize(2);                       // text size = 2
     tft.setTextColor(CYAN, BLACK);            // set text color to cyan and black background
     tft.setCursor(x_pos[previous_dow-1], 0);  // set cursor to position (dow, 0) pixel
@@ -198,6 +213,7 @@ void CST()
 
     JS();                                     // requesting jadwal sholat
 
+    // print jadwal sholat upper row
     tft.fillRect(5, 89, 150, 11, BLACK);      // fill rectangle (x,y,w,h,color)
     tft.setTextSize(1);                       // text size = 1
     tft.setTextColor(YELLOW, BLACK);             // set text color to red and black background
@@ -210,6 +226,7 @@ void CST()
     tft.setCursor(120, 90);                   // move cursor to position (120, 90) pixel
     tft.print( b_dhuha );
 
+    // print jadwal sholat lower row
     tft.fillRect(5, 115, 150, 11, BLACK);     // fill rectangle (x,y,w,h,color)
     tft.setCursor(8, 116);                    // move cursor to position (8, 116) pixel
     tft.print( b_dzuhur );
@@ -223,19 +240,9 @@ void CST()
 
   // print date
   tft.setTextSize(2);                         // text size = 2
-  tft.setCursor(22, 21);                      // move cursor to position (22, 21) pixel
+  tft.setCursor(28, 21);                      // move cursor to position (22, 21) pixel
   tft.setTextColor(LIGHTGREY, BLACK);         // set text color to yellow and black background
   tft.printf( "%02u/%02u/%04u", day(unix_epoch), month(unix_epoch), year(unix_epoch) );
-
-  // print time
-  tft.setTextSize(3);                         // text size = 3
-  tft.setCursor(20, 42);                      // move cursor to position (20, 42) pixel
-  tft.setTextColor(LIGHTGREY, BLACK);         // set text color to lightgrey and black background
-  tft.printf( "%02u:%02u", hour(unix_epoch), minute(unix_epoch) );
-  // print seconds
-  tft.setTextSize(2);                         // text size = 2
-  tft.setCursor(108, 49);                     // move cursor to position (108, 49) pixel
-  tft.printf( ":%02u", second(unix_epoch) );
 }
 
 // JADWAL SHOLAT FUNCTION
@@ -250,6 +257,7 @@ void JS()
   String url = "https://api.myquran.com/v1/sholat/jadwal/";
   url = url + id_kota + "/" + year(unix_epoch) + "/" + month(unix_epoch) + "/" + day(unix_epoch);
 
+  // requesting the table
   Serial.println ( url );
   https.begin ( client, url );
   int httpCode = https.GET();
@@ -257,6 +265,7 @@ void JS()
   Serial.print ( payload );
   Serial.print ( "\r\n\r\n" );
 
+  // deserialize JSON payload
   DynamicJsonDocument doc (1024);
   DeserializationError error = deserializeJson(doc, payload);
   JsonObject results = doc [ "data" ][ "jadwal" ];
@@ -286,18 +295,26 @@ void JS()
   }
 }
 
-// Clock Status Function - inspired by W8BH - Bruce Hall - https://github.com/bhall66/NTP-clock
-void CStat()
+// Clock Status Function - inspired by W8BH - Bruce E. Hall - https://github.com/bhall66/NTP-clock
+void CSTATUS()
 {
-  int color;
-  if (second()%10) return;                      // update every 10 seconds 
-  int syncAge = now()-lastNtpUpdateTime();      // how long since last sync?
-  if (syncAge < SYNC_MARGINAL)                  // time is good & in sync
+  int color, sync_age;
+  if ( second()%10 ) return;                        // update every 10 seconds 
+  sync_age = now() - lastNtpUpdateTime();           // how long since last sync?
+  if ( sync_age < SYNC_MARGINAL )                   // time is good & in sync
     color = GREEN;
-  else if (syncAge < SYNC_LOST)                 // sync is 1-24 hours old
+  else if ( sync_age < SYNC_LOST )                  // sync is 1-24 hours old
     color = YELLOW;
-  else color = RED;                             // time is stale!
-  tft.fillRoundRect(145, 3, 10, 10, 10, color); // show clock status as a color
+  else color = RED;                                 // time is stale!
+  tft.setTextSize(1);                               // text size = 1
+  tft.setTextColor(color, BLACK);                   // set text color to yellow and black background
+  tft.setCursor(6, 15);                             // move cursor to position (6, 13) pixel
+  tft.print( "N" );
+  tft.setCursor(6, 25);                             // move cursor to position (6, 23) pixel
+  tft.print( "T" );
+  tft.setCursor(6, 35);                             // move cursor to position (6, 33) pixel
+  tft.print( "P" );
+  tft.fillRoundRect( 5, 50, 7, 7, 10, color );      // show clock status as a color
 }
 
 // PROGRAM END
