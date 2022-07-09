@@ -7,7 +7,11 @@ NodeMCU ESP8266 - NTP driven islamic prayer times with 1.8" TFT SPI Display
 
 ## 1. Introduction
 
-This is basically a NTP clock running on NodeMCU ESP8266 with Adafruit compatible 1.8" TFT SPI display. Adding WiFiManager https://github.com/tzapu/WiFiManager to prevent hard coding SSID and Password. Adding Jadwal Sholat (Islamic Prayer Times) by requesting it on a daily basis from https://api.myquran.com which on the other hand had the data scrapped from Direktorat Jenderal Bimas Islam Kementerian Agama Republik Indonesia https://bimasislam.kemenag.go.id/jadwalshalat
+This is basically a NTP clock running on NodeMCU ESP8266 with Adafruit compatible 1.8" TFT SPI display. 
+
+Adding WiFiManager https://github.com/tzapu/WiFiManager to prevent hard coding SSID and Password. 
+
+Adding Jadwal Sholat (Islamic Prayer Times) by requesting it on a daily basis from https://api.myquran.com which on the other hand had the data scrapped from Direktorat Jenderal Bimas Islam Kementerian Agama Republik Indonesia https://bimasislam.kemenag.go.id/jadwalshalat
 
 For more information regarding the validity of the data, please visit the respective web site from the above given links.
 
@@ -62,4 +66,4 @@ Upon start up the WiFiManager kicks in. If a saved WiFi configuration found it w
 
 Once it is connected to the internet, it will start to synchronize and fetch the unix epoch from the configured NTP server. You do not need to adjust the date and time manually.
 
-NTP sync status is displayed on the upper left side display inside the vertical rectangle. NTP is displayed in green means it is synced, NTP is displayed in yellow means it is synced in the last 1 - 24 hour, NTP is displayed in red means it is out of sync.
+NTP sync status is displayed on the upper left side display inside the vertical rectangle. NTP is displayed in green means it is good and synced in the last 1 hour, NTP is displayed in yellow means it is synced in the last 1 - 24 hour, NTP is displayed in red means it is out of sync.
