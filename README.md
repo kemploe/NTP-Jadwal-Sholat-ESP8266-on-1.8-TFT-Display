@@ -15,6 +15,8 @@ Adding Jadwal Sholat (Islamic Prayer Times) by requesting it on a daily basis fr
 
 For more information regarding the validity of the data, please visit the respective web site from the above given links.
 
+THIS SOFTWARE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY.
+
 ## 2. Bill of Material (BOM)
    - NodeMCU ESP8266        - https://bit.ly/3zTizP3 or equivalent. 
    - 1.8" TFT SPI Display   - https://bit.ly/3QDjysy or equivalent. 
