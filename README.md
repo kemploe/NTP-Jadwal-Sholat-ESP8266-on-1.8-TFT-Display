@@ -3,7 +3,7 @@ NodeMCU ESP8266 - Jadwal Sholat berbasis NTP dengan 1.8" TFT SPI Display
 
 NodeMCU ESP8266 - NTP driven islamic prayer times with 1.8" TFT SPI Display
 
-![NTP Jadwal Sholat](https://github.com/kemploe/NTP-Jadwal-Sholat-ESP8266-on-1.8-TFT-Display/blob/main/images/photo_2022-07-02_06-09-52.jpg)
+![NTP Jadwal Sholat](https://github.com/kemploe/NTP-Jadwal-Sholat-ESP8266-on-1.8-TFT-Display/blob/main/images/2022-07-10_024901.png)
 
 ## 1. Introduction
 
