@@ -7,7 +7,9 @@ NodeMCU ESP8266 - NTP driven islamic prayer times with 1.8" TFT SPI Display
 
 ## 1. Introduction
 
-This is basically a NTP clock running on NodeMCU ESP8266 with Adafruit compatible 1.8" TFT SPI display. Adding Jadwal Sholat (Salat Time) by requesting it from https://api.myquran.com on a daily basis and WiFiManager https://github.com/tzapu/WiFiManager to prevent hard coding SSID and Password. 
+This is basically a NTP clock running on NodeMCU ESP8266 with Adafruit compatible 1.8" TFT SPI display. Adding WiFiManager https://github.com/tzapu/WiFiManager to prevent hard coding SSID and Password and Jadwal Sholat (Islamic Prayer Times) by requesting it on a daily basis from https://api.myquran.com which on the other hand had the data harvested from Bimas Islam Kementerian Agama Republik Indonesia https://bimasislam.kemenag.go.id/jadwalshalat
+
+For more information regarding the validity of the data, please visit the respective web site from the above given links.
 
 ## 2. Bill of Material (BOM)
    - NodeMCU ESP8266        - https://bit.ly/3zTizP3 or equivalent. 
