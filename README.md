@@ -15,7 +15,7 @@ Adding Jadwal Sholat (Islamic Prayer Times) by requesting it on a daily basis fr
 
 For more information regarding the validity of the data, please visit the respective web site from the above given links.
 
-THIS SOFTWARE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY.
+### THIS SOFTWARE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY.
 
 ## 2. Bill of Material (BOM)
    - NodeMCU ESP8266        - https://bit.ly/3zTizP3 or equivalent. 
@@ -36,7 +36,7 @@ THIS SOFTWARE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY.
 
 ![1.8" TFT SPI Display](https://github.com/kemploe/NTP-Jadwal-Sholat-ESP8266-on-1.8-TFT-Display/blob/main/images/2022-07-01_082841.png)
 
-Note:
+### Note:
 On some Adafruit compatible 1.8" TFT SPI display, RESET is RST, A0 is DC, SDA is MOSI, SCK is SCLK and LED is BL. So pay attention to your wiring, double check before powering up the device. 
 
 ## 4. Operation
