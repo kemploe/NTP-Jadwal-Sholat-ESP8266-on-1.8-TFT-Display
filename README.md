@@ -41,7 +41,7 @@ On some Adafruit compatible 1.8" TFT SPI display, RESET is RST, A0 is DC, SDA is
 
 ## 4. Operation
 
-Upon start up the WiFiManager kicks in. If a saved WiFi configuration found it will configure NodeMCU as a WiFi Station (STA) and connect to the WiFi Access Point that is configured in the saved configuration. Otherwise it will configure NodeMCU as an Access Point (AP) with SSID: "JamSholat" and spawn a web page (WiFiManager portal) that you can connect to and configure using your Smartphone. Once the WiFi has been configured it will switch back to STA mode and start the clock.
+Upon start up the WiFiManager kicks in. If a saved WiFi configuration found it will configure NodeMCU as a WiFi Station (STA) and connect to the WiFi Access Point that is configured in the saved configuration. Otherwise it will configure NodeMCU as an Access Point (AP) with SSID: "JamSholat" and spawn a web page (WiFiManager portal) that you can connect to and configure using your Smartphone. Once the WiFi has been configured it will switch back to Station (STA) mode and start the clock.
 
 
 ![Configure WiFi](https://github.com/kemploe/NTP-Jadwal-Sholat-ESP8266-on-1.8-TFT-Display/blob/main/images/2022-07-02_012612.png)
