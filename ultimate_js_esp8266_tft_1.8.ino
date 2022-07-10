@@ -102,7 +102,7 @@ void setup()
 
     // reset settings - wipe stored credentials for testing
     // these are stored by the esp library
-    // wfm.resetSettings();
+    wfm.resetSettings();
 
     Serial.println("WiFi connecting");
     tft.setCursor(38, 20);                    // move cursor to position (38, 20) pixel
