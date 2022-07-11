@@ -1,4 +1,4 @@
-// NodeMCU ESP8266
+// NodeMCU ESP8266 - NTP Jadwal Sholat 1.8" TFT SPI
 
 #include <Adafruit_ST7735.h>
 #include <ArduinoJson.h>
@@ -29,8 +29,8 @@ char b_maghrib[10];
 char b_isya[10];
 
 // day of the week (dow) and it's corresponding absolute x position array
-char dow_matrix[7][10] = {"Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jum'at", "Sabtu"};
-byte dow_x_pos[7] = {53, 59, 53, 65, 59, 53, 59};
+char dow_matrix[7][10] = {"Ahad", "Senin", "Selasa", "Rabu", "Kamis", "Jum'at", "Sabtu"};
+byte dow_x_pos[7] = {65, 59, 53, 65, 59, 53, 59};
 static byte previous_dow = 0;
 
 // Elapsed time since 1 Jan 1970 in seconds
@@ -130,7 +130,7 @@ void setup()
     delay(3000);
 
   // set hostname
-  WiFi.hostname(new_hostname.c_str());
+  WiFi.setHostname(new_hostname.c_str());
 
 // Initializing NTP client
   timeClient.begin();
@@ -257,14 +257,14 @@ void JS()
   DynamicJsonDocument doc (1024);
   DeserializationError error = deserializeJson(doc, payload);
   JsonObject results = doc [ "data" ][ "jadwal" ];
-  String imsak   = results[ "imsak" ];
-  String subuh   = results[ "subuh" ];
-  String terbit  = results[ "terbit" ];
-  String dhuha   = results[ "dhuha" ];
-  String dzuhur  = results[ "dzuhur" ];
-  String ashar   = results[ "ashar" ];
-  String maghrib = results[ "maghrib" ];
-  String isya    = results[ "isya" ];
+  String imsak    = results[ "imsak" ];
+  String subuh    = results[ "subuh" ];
+  String terbit   = results[ "terbit" ];
+  String dhuha    = results[ "dhuha" ];
+  String dzuhur   = results[ "dzuhur" ];
+  String ashar    = results[ "ashar" ];
+  String maghrib  = results[ "maghrib" ];
+  String isya     = results[ "isya" ];
 
   // convert string to character
   imsak.toCharArray   (b_imsak,   10);
@@ -287,23 +287,27 @@ void JS()
 // NTP Clock Status Function - inspired by W8BH - Bruce E. Hall - https://github.com/bhall66/NTP-clock
 void NCS()
 {
-  int color, sync_age;
+  int sync_result, sync_age;
+
   if ( second()%10 ) return;                        // update every 10 seconds 
   sync_age = now() - lastNtpUpdateTime();           // how long since last sync?
   if ( sync_age < SYNC_MARGINAL )                   // time is good & in sync
-    color = GREEN;
-  else if ( sync_age < SYNC_LOST )                  // sync is 1-24 hours old
-    color = YELLOW;
-  else color = RED;                                 // time is stale!
+    sync_result = GREEN;
+  else 
+  if ( sync_age < SYNC_LOST )                       // sync is 1-24 hours old
+    sync_result = YELLOW;
+  else sync_result = RED;                           // time is stale!
+
+  // display sync result
   tft.setTextSize(1);                               // text size = 1
-  tft.setTextColor(color, BLACK);                   // set text color to 'color' and black background
+  tft.setTextColor(sync_result, BLACK);             // set text color to 'sync_result' and black background
   tft.setCursor(6, 15);                             // move cursor to position (6, 15) pixel
   tft.print( "N" );
   tft.setCursor(6, 25);                             // move cursor to position (6, 25) pixel
   tft.print( "T" );
   tft.setCursor(6, 35);                             // move cursor to position (6, 35) pixel
   tft.print( "P" );
-  tft.fillRoundRect( 5, 50, 7, 7, 0, color );       // show clock status as a 'color'
+  tft.fillRoundRect( 5, 50, 7, 7, 0, sync_result ); // show clock status color as 'sync_result'
 }
 
 // PROGRAM END
