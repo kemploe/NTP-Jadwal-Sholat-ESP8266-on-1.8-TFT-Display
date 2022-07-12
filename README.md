@@ -24,7 +24,7 @@ For more information regarding the validity of the data, please visit the respec
    - Jumpers                - https://bit.ly/39KrPdJ or equivalent. 
 
 ## 3. Cabling/Wiring the 1.8" TFT SPI display to NodeMCU
-      Display <---> NodeMCU
+        Display | NodeMCU
           VCC <---> 5V or 3.3V
           GND <---> GND
            CS <---> GPIO 0
