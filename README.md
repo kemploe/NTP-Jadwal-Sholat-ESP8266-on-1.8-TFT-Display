@@ -73,6 +73,12 @@ Once connected to the internet, it will start to synchronize and fetch the unix 
 
 ![image](https://github.com/kemploe/NTP-Jadwal-Sholat-ESP8266-on-1.8-TFT-Display/blob/main/images/2022-07-10_030431-1.png)
 
-NTP sync status is displayed on the upper left side display inside the vertical rectangle. NTP is displayed in green means it is good and synced in the last 1 hour, NTP is displayed in yellow means it is synced in the last 1 - 24 hour, NTP is displayed in red means it is out of sync.
+NTP sync status is displayed on the upper left side display inside the vertical rectangle. 
+
+NTP is displayed in green indicates it is good and synced in the last 1 hour.
+
+NTP is displayed in yellow indicates it is synced in the last 1 - 24 hour. 
+
+NTP is displayed in red indicates it is out of sync.
 
 
