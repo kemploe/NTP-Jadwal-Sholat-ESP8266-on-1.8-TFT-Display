@@ -61,7 +61,7 @@ Upon start up the WiFiManager kicks in. If a saved WiFi configuration found it w
 
 <!-- this is hidden -->
 
-![Configure WiFi]()
+![Configure WiFi](https://github.com/kemploe/NTP-Jadwal-Sholat-ESP8266-on-1.8-TFT-Display/blob/main/images/2022-07-02_012714.png)
 
 ### 4. In "Configure WiFi", in "Password", provide the password for your WiFi then tap on "Save"
 
