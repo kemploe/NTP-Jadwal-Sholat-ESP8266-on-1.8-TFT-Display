@@ -79,6 +79,6 @@ NTP is displayed in green indicates it is good and synced in the last 1 hour.
 
 NTP is displayed in yellow indicates it is synced in the last 1 - 24 hour. 
 
-NTP is displayed in red indicates it is out of sync.
+NTP is displayed in red indicates it is stale or out of sync.
 
 
