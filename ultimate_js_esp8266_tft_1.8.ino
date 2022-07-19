@@ -18,22 +18,15 @@ const int     id_kota = 1301;               // See https://api.myquran.com/v1/sh
 const int  duty_cycle = 72;                 // TFT brightness using PWM duty cycle (0-255)
 String   new_hostname = "JamSholat";
 
-// Buffers for JSON payload string to character conversion
-char b_imsak[10];
-char b_subuh[10];
-char b_terbit[10];
-char b_dhuha[10];
-char b_dzuhur[10];
-char b_ashar[10];
-char b_maghrib[10];
-char b_isya[10];
+// Buffers for JSON payload, string to character conversion
+char b_imsak[10], b_subuh[10], b_terbit[10], b_dhuha[10], b_dzuhur[10], b_ashar[10], b_maghrib[10], b_isya[10];
 
 // day of the week (dow) and it's corresponding absolute x position array
 char dow_matrix[7][10] = {"Ahad", "Senin", "Selasa", "Rabu", "Kamis", "Jum'at", "Sabtu"};
 byte dow_x_pos[7] = {65, 59, 53, 65, 59, 53, 59};
 static byte previous_dow = 0;
 
-// Elapsed time since 1 Jan 1970 in seconds
+// Elapsed time since 1 Jan 1970 - 00:00:00 in seconds
 unsigned long unix_epoch;
 
 // Pin assignment for PWM output to set TFT backlight brightness
@@ -72,172 +65,110 @@ Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_A0, TFT_RST);
 #define BLUE        RGB(  0,   0, 255)
 #define GREEN       RGB(  0, 255,   0)
 
-#define SYNC_MARGINAL 3600             // yellow status if no sync for 1 hour
-#define SYNC_LOST 86400                // red status if no sync for 1 day
+#define SYNC_MARGINAL 3600                          // yellow status if no sync for 1 hour
+#define SYNC_LOST     86400                         // red status if no sync for 1 day
 
 // NTP client setup, this must be done before setup
   int utc_offset = ( time_zone * 3600 );
   WiFiUDP ntpUDP;
   NTPClient timeClient( ntpUDP, ntp_pool, utc_offset, ntp_update );
 
-// SETUP
-void setup()
+// STATIC CONTENT FUNCTION
+void SCF()
 {
-  // initializing 1.8" TFT display
-  analogWrite(led_pin, duty_cycle);   // set display brightness
-  tft.initR(INITR_BLACKTAB);          // initialize TFT display with ST7735 chip
-  tft.setRotation(1);                 // set display orientation
-  tft.fillScreen(BLACK);              // blanking display
-
-  // initializing Serial Port
-  Serial.begin(115200);               // set serial port speed
-  delay (3000);                       // 3 seconds delay
-
-  // WiFiManager, Local initialization. 
-  // Once its business is done, there is no need to keep it around
-  WiFiManager wfm;
-
-    // Supress Debug information
-    wfm.setDebugOutput(true);
-
-    // reset settings - wipe stored credentials for testing
-    // these are stored by the esp library
-    wfm.resetSettings();
-
-    Serial.println("WiFi connecting");
-    tft.setCursor(38, 20);                    // move cursor to position (38, 20) pixel
-    tft.print("WiFi connecting");
-
-    if (!wfm.autoConnect( "JamSholat" )) {
-      // Did not connect, print error message
-      Serial.println("failed to connect and hit timeout");
-      tft.setCursor(40, 30);                  // move cursor to position (40, 30) pixel
-      tft.print("failed to connect and hit timeout");
-   
-      // Reset and try again
-      ESP.restart();
-      delay(1000);
-    }
- 
-    // Connected!
-    Serial.println("WiFi connected");
-    Serial.print("IP address: ");
-    Serial.println(WiFi.localIP());
-    tft.setCursor(40, 40);                   // move cursor to position (40, 40) pixel
-    tft.print("WiFi connected");
-    tft.setCursor(40, 60);                   // move cursor to position (40, 60) pixel
-    tft.print(WiFi.localIP());
-    delay(3000);
-
-  // set hostname
-  WiFi.setHostname(new_hostname.c_str());
-
-// Initializing NTP client
-  timeClient.begin();
-  delay (100);
-
-  tft.fillScreen(BLACK);                    // blanking display
+  tft.fillScreen(BLACK);                            // blanking display
 
   // draw rectangle frames on display
-  tft.drawRect(0, 0, 16, 70, WHITE);        // draw rectangle (x, y, w, h, color)
-  tft.drawRect(0, 73, 160, 55, WHITE);      // draw rectangle (x, y, w, h, color)
+  tft.drawRect(0, 0, 16, 70, WHITE);                // draw rectangle (x, y, w, h, color)
+  tft.drawRect(0, 73, 160, 55, WHITE);              // draw rectangle (x, y, w, h, color)
   
-  tft.setTextSize(1);                       // text size = 1
-  tft.setTextColor(CYAN, BLACK);            // set text color to cyan and black background
-  tft.setCursor(8, 78);                     // move cursor to position (8, 78) pixel
+  tft.setTextSize(1);                               // text size = 1
+  tft.setTextColor(CYAN, BLACK);                    // set text color to cyan and black background
+  tft.setCursor(8, 78);                             // move cursor to position (8, 78) pixel
   tft.print( "Imsak" );
-  tft.setCursor(43, 78);                    // move cursor to position (43, 78) pixel
+  tft.setCursor(43, 78);                            // move cursor to position (43, 78) pixel
   tft.print( "Subuh" );
-  tft.setCursor(79, 78);                    // move cursor to position (79, 78) pixel
+  tft.setCursor(79, 78);                            // move cursor to position (79, 78) pixel
   tft.print( "Terbit" );
-  tft.setCursor(120, 78);                   // move cursor to position (120, 78) pixel
+  tft.setCursor(120, 78);                           // move cursor to position (120, 78) pixel
   tft.print( "Dhuha" );
 
-  tft.setCursor(6, 104);                    // move cursor to position (6, 104) pixel
+  tft.setCursor(6, 104);                            // move cursor to position (6, 104) pixel
   tft.print( "Dzuhur" );
-  tft.setCursor(45, 104);                   // move cursor to position (45, 104) pixel
+  tft.setCursor(45, 104);                           // move cursor to position (45, 104) pixel
   tft.print( "Ashar" );
-  tft.setCursor(79, 104);                   // move cursor to position (79, 104) pixel
+  tft.setCursor(79, 104);                           // move cursor to position (79, 104) pixel
   tft.print( "Maghrib" );
-  tft.setCursor(124, 104);                  // move cursor to position (124, 104) pixel
+  tft.setCursor(124, 104);                          // move cursor to position (124, 104) pixel
   tft.print( "Isya'" );
 }
 
-// MAIN LOOP
-void loop()
-{
-  timeClient.update();                      // requesting time from NTP server
-  unix_epoch = timeClient.getEpochTime();   // get UNIX Epoch time from NTP server
-
-  if ( second()%1 ) return;                 // update every 1 second
-  events();                                 // update ntp
-  CST();                                    // requesting Clock and Salat Time
-  NCS();                                    // requesting NTP Clock Status
-}
-
 // CLOCK AND SALAT TIME FUNCTION
-void CST()
+void CSTF()
 {
+  timeClient.update();                              // requesting time from NTP server
+  unix_epoch = timeClient.getEpochTime();           // get UNIX Epoch time from NTP server
+
   // print date
-  tft.setTextSize(2);                         // text size = 2
-  tft.setCursor(28, 21);                      // move cursor to position (22, 21) pixel
-  tft.setTextColor(LIGHTGREY, BLACK);         // set text color to yellow and black background
+  tft.setTextSize(2);                               // text size = 2
+  tft.setCursor(28, 21);                            // move cursor to position (22, 21) pixel
+  tft.setTextColor(LIGHTGREY, BLACK);               // set text color to yellow and black background
   tft.printf( "%02u/%02u/%04u", day(unix_epoch), month(unix_epoch), year(unix_epoch) );
 
   // print time
-  tft.setTextSize(3);                         // text size = 3
-  tft.setCursor(28, 42);                      // move cursor to position (20, 42) pixel
-  tft.setTextColor(LIGHTGREY, BLACK);         // set text color to lightgrey and black background
+  tft.setTextSize(3);                               // text size = 3
+  tft.setCursor(28, 42);                            // move cursor to position (20, 42) pixel
+  tft.setTextColor(LIGHTGREY, BLACK);               // set text color to lightgrey and black background
   tft.printf( "%02u:%02u", hour(unix_epoch), minute(unix_epoch) );
 
   // print seconds
-  tft.setTextSize(2);                         // text size = 2
-  tft.setCursor(114, 49);                     // move cursor to position (108, 49) pixel
+  tft.setTextSize(2);                               // text size = 2
+  tft.setCursor(114, 49);                           // move cursor to position (108, 49) pixel
   tft.printf( ":%02u", second(unix_epoch) );
 
   // print day of the week (dow)
   if( previous_dow != weekday(unix_epoch) )
   {
     previous_dow = weekday(unix_epoch);
-    tft.fillRect(17, 0, 140, 16, BLACK);      // fill rectangle (x,y,w,h,color) (erase day from the display)
-    tft.setTextSize(2);                       // text size = 2
-    tft.setTextColor(CYAN, BLACK);            // set text color to cyan and black background
+    tft.fillRect(17, 0, 140, 16, BLACK);            // fill rectangle (x,y,w,h,color) (erase day from the display)
+    tft.setTextSize(2);                             // text size = 2
+    tft.setTextColor(CYAN, BLACK);                  // set text color to cyan and black background
     tft.setCursor( dow_x_pos[previous_dow-1], 0 );  // set cursor to position (dow_x_pos, 0) pixel
     tft.print( dow_matrix[previous_dow-1] );
 
-    JS();                                     // requesting Jadwal Sholat once every day at 00:00:00
+    JSF();                                          // requesting Jadwal Sholat once every day at 00:00:00
 
     // print jadwal sholat upper row
-    tft.fillRect(5, 89, 150, 11, BLACK);      // fill rectangle (x,y,w,h,color)
-    tft.setTextSize(1);                       // text size = 1
-    tft.setTextColor(YELLOW, BLACK);          // set text color to yellow and black background
-    tft.setCursor(8, 90);                     // move cursor to position (8, 90) pixel
+    tft.fillRect(5, 89, 150, 11, BLACK);            // fill rectangle (x,y,w,h,color)
+    tft.setTextSize(1);                             // text size = 1
+    tft.setTextColor(YELLOW, BLACK);                // set text color to yellow and black background
+    tft.setCursor(8, 90);                           // move cursor to position (8, 90) pixel
     tft.print( b_imsak );
-    tft.setCursor(43, 90);                    // move cursor to position (43, 90) pixel
+    tft.setCursor(43, 90);                          // move cursor to position (43, 90) pixel
     tft.print( b_subuh );
-    tft.setCursor(83, 90);                    // move cursor to position (83, 90) pixel
+    tft.setCursor(83, 90);                          // move cursor to position (83, 90) pixel
     tft.print( b_terbit );
-    tft.setCursor(120, 90);                   // move cursor to position (120, 90) pixel
+    tft.setCursor(120, 90);                         // move cursor to position (120, 90) pixel
     tft.print( b_dhuha );
 
     // print jadwal sholat lower row
-    tft.fillRect(5, 115, 150, 11, BLACK);     // fill rectangle (x,y,w,h,color)
-    tft.setCursor(8, 116);                    // move cursor to position (8, 116) pixel
+    tft.fillRect(5, 115, 150, 11, BLACK);           // fill rectangle (x,y,w,h,color)
+    tft.setCursor(8, 116);                          // move cursor to position (8, 116) pixel
     tft.print( b_dzuhur );
-    tft.setCursor(44, 116);                   // move cursor to position (44, 116) pixel
+    tft.setCursor(44, 116);                         // move cursor to position (44, 116) pixel
     tft.print( b_ashar );
-    tft.setCursor(84, 116);                   // move cursor to position (84, 116) pixel
+    tft.setCursor(84, 116);                         // move cursor to position (84, 116) pixel
     tft.print( b_maghrib );
-    tft.setCursor(120, 116);                  // move cursor to position (120, 116) pixel
+    tft.setCursor(120, 116);                        // move cursor to position (120, 116) pixel
     tft.print( b_isya );
   }
 }
 
 // JADWAL SHOLAT FUNCTION
-void JS()
+void JSF()
 {
   WiFiClientSecure client;
-  client.setInsecure();                       // use with caution
+  client.setInsecure();                             // use with caution
   client.connect ( "api.myquran.com", 80 );
 
   // url request construct
@@ -285,11 +216,11 @@ void JS()
 }
 
 // NTP Clock Status Function - inspired by W8BH - Bruce E. Hall - https://github.com/bhall66/NTP-clock
-void NCS()
+void NCSF()
 {
   int sync_result, sync_age;
 
-  if ( second()%10 ) return;                        // update every 10 seconds 
+  if ( second()%30 ) return;                        // update every 30 seconds
   sync_age = now() - lastNtpUpdateTime();           // how long since last sync?
   if ( sync_age < SYNC_MARGINAL )                   // time is good & in sync
     sync_result = GREEN;
@@ -308,6 +239,79 @@ void NCS()
   tft.setCursor(6, 35);                             // move cursor to position (6, 35) pixel
   tft.print( "P" );
   tft.fillRoundRect( 5, 50, 7, 7, 0, sync_result ); // show clock status color as 'sync_result'
+}
+
+// SETUP
+void setup()
+{
+  // initializing 1.8" TFT display
+  analogWrite(led_pin, duty_cycle);                 // set display brightness
+  tft.initR(INITR_BLACKTAB);                        // initialize TFT display with ST7735 chip
+  tft.setRotation(1);                               // set display orientation
+  tft.fillScreen(BLACK);                            // blanking display
+
+  // initializing Serial Port
+  Serial.begin(115200);                             // set serial port speed
+  delay (3000);                                     // 3 seconds delay
+
+  // WiFiManager, Local initialization. 
+  // Once its business is done, there is no need to keep it around
+  WiFiManager wfm;
+
+    // Supress Debug information
+    wfm.setDebugOutput(true);
+
+    // reset settings - wipe stored credentials for testing
+    // these are stored by the esp library
+    wfm.resetSettings();
+
+    Serial.println("WiFi connecting");
+    tft.setCursor(38, 20);                          // move cursor to position (38, 20) pixel
+    tft.print("WiFi connecting");
+
+    if (!wfm.autoConnect( "JamSholat" )) {
+      // Did not connect, print error message
+      Serial.println("failed to connect and hit timeout");
+      tft.setCursor(40, 30);                        // move cursor to position (40, 30) pixel
+      tft.print("failed to connect and hit timeout");
+   
+      // Reset and try again
+      ESP.restart();
+      delay(1000);
+    }
+ 
+    // Connected!
+    Serial.println("WiFi connected");
+    Serial.print("IP address: ");
+    Serial.println(WiFi.localIP());
+    tft.setCursor(40, 40);                          // move cursor to position (40, 40) pixel
+    tft.print("WiFi connected");
+    tft.setCursor(40, 60);                          // move cursor to position (40, 60) pixel
+    tft.print(WiFi.localIP());
+    delay(3000);
+
+  // set hostname
+  WiFi.setHostname(new_hostname.c_str());
+
+// Initializing NTP client
+  timeClient.begin();
+  delay(500);
+  timeClient.update();                              // requesting time from NTP server
+  delay(500);
+  unix_epoch = timeClient.getEpochTime();           // get UNIX Epoch time from NTP server
+  delay(500);
+
+  JSF();                                            // requesting Jam Sholat function
+  delay(500);
+  SCF();                                            // requesting Static Content function
+}
+
+// MAIN LOOP
+void loop()
+{
+  CSTF();                                          // requesting Clock and Salat Time function
+  NCSF();                                          // requesting NTP Clock Status function
+  events();                                        // update ntp
 }
 
 // PROGRAM END
