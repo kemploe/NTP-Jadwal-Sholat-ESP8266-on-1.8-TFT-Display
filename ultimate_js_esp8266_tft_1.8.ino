@@ -5,7 +5,6 @@
 #include <ESP8266HTTPClient.h>
 #include <ESP8266WiFi.h>
 #include <ezTime.h>
-#include <NTPClient.h>
 #include <WiFiClientSecure.h>
 #include <WiFiManager.h>
 #include <WiFiUdp.h>
@@ -255,7 +254,7 @@ void setup()
 
     // reset settings - wipe stored credentials for testing
     // these are stored by the esp library
-//    wfm.resetSettings();
+    wfm.resetSettings();
 
     Serial.println("WiFi connecting");
     tft.setCursor(38, 20);                          // move cursor to position (38, 20) pixel
