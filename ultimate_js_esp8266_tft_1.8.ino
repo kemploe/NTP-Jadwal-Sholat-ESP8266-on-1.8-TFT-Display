@@ -11,11 +11,11 @@
 #include <WiFiUdp.h>
 
 // Adjustable parameters
-const int   time_zone = +7;                 // WIB (UTC + 7)
+const char   * t_zone = "Asia/Jakarta";     // See https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
 const char * ntp_pool = "id.pool.ntp.org";  // NTP Server pool address
-const long ntp_update = 600000;             // NTP Client update interval in millisecond (ms)
 const int     id_kota = 1301;               // See https://api.myquran.com/v1/sholat/kota/semua
 const int  duty_cycle = 72;                 // TFT brightness using PWM duty cycle (0-255)
+const int display_ori = 1;                  // TFT display orientation
 String   new_hostname = "JamSholat";
 
 // Buffers for JSON payload, string to character conversion
@@ -26,8 +26,8 @@ char dow_matrix[7][10] = {"Ahad", "Senin", "Selasa", "Rabu", "Kamis", "Jum'at", 
 byte dow_x_pos[7] = {65, 59, 53, 65, 59, 53, 59};
 static byte previous_dow = 0;
 
-// Elapsed time since 1 Jan 1970 - 00:00:00 in seconds
-unsigned long unix_epoch;
+Timezone my_tz;                              // local timezone variable
+time_t loc_time;                             // current & displayed local time
 
 // Pin assignment for PWM output to set TFT backlight brightness
 uint8_t led_pin = 5;           // TFT LED/BL    pin is connected to NodeMCU pin D1 (GPIO 5)
@@ -68,16 +68,10 @@ Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_A0, TFT_RST);
 #define SYNC_MARGINAL 3600                          // yellow status if no sync for 1 hour
 #define SYNC_LOST     86400                         // red status if no sync for 1 day
 
-// NTP client setup, this must be done before setup
-  int utc_offset = ( time_zone * 3600 );
-  WiFiUDP ntpUDP;
-  NTPClient timeClient( ntpUDP, ntp_pool, utc_offset, ntp_update );
-
-// STATIC CONTENT FUNCTION
-void SCF()
+// STATIC DISPLAY FUNCTION
+void SDF()
 {
   tft.fillScreen(BLACK);                            // blanking display
-
   // draw rectangle frames on display
   tft.drawRect(0, 0, 16, 70, WHITE);                // draw rectangle (x, y, w, h, color)
   tft.drawRect(0, 73, 160, 55, WHITE);              // draw rectangle (x, y, w, h, color)
@@ -106,30 +100,28 @@ void SCF()
 // CLOCK AND SALAT TIME FUNCTION
 void CSTF()
 {
-  timeClient.update();                              // requesting time from NTP server
-  unix_epoch = timeClient.getEpochTime();           // get UNIX Epoch time from NTP server
-
-  // print date
+  loc_time = my_tz.now();
+// print date
   tft.setTextSize(2);                               // text size = 2
   tft.setCursor(28, 21);                            // move cursor to position (22, 21) pixel
   tft.setTextColor(LIGHTGREY, BLACK);               // set text color to yellow and black background
-  tft.printf( "%02u/%02u/%04u", day(unix_epoch), month(unix_epoch), year(unix_epoch) );
+  tft.printf( "%02u/%02u/%04u", day(loc_time), month(loc_time), year(loc_time) );
 
-  // print time
+// print time
   tft.setTextSize(3);                               // text size = 3
   tft.setCursor(28, 42);                            // move cursor to position (20, 42) pixel
   tft.setTextColor(LIGHTGREY, BLACK);               // set text color to lightgrey and black background
-  tft.printf( "%02u:%02u", hour(unix_epoch), minute(unix_epoch) );
+  tft.printf( "%02u:%02u", hour(loc_time), minute(loc_time) );
 
-  // print seconds
+// print seconds
   tft.setTextSize(2);                               // text size = 2
   tft.setCursor(114, 49);                           // move cursor to position (108, 49) pixel
-  tft.printf( ":%02u", second(unix_epoch) );
+  tft.printf( ":%02u", second(loc_time) );
 
-  // print day of the week (dow)
-  if( previous_dow != weekday(unix_epoch) )
+// print day of the week (dow)
+  if( previous_dow != weekday(loc_time) )
   {
-    previous_dow = weekday(unix_epoch);
+    previous_dow = weekday(loc_time);
     tft.fillRect(17, 0, 140, 16, BLACK);            // fill rectangle (x,y,w,h,color) (erase day from the display)
     tft.setTextSize(2);                             // text size = 2
     tft.setTextColor(CYAN, BLACK);                  // set text color to cyan and black background
@@ -138,7 +130,7 @@ void CSTF()
 
     JSF();                                          // requesting Jadwal Sholat once every day at 00:00:00
 
-    // print jadwal sholat upper row
+// print jadwal sholat upper row
     tft.fillRect(5, 89, 150, 11, BLACK);            // fill rectangle (x,y,w,h,color)
     tft.setTextSize(1);                             // text size = 1
     tft.setTextColor(YELLOW, BLACK);                // set text color to yellow and black background
@@ -151,7 +143,7 @@ void CSTF()
     tft.setCursor(120, 90);                         // move cursor to position (120, 90) pixel
     tft.print( b_dhuha );
 
-    // print jadwal sholat lower row
+// print jadwal sholat lower row
     tft.fillRect(5, 115, 150, 11, BLACK);           // fill rectangle (x,y,w,h,color)
     tft.setCursor(8, 116);                          // move cursor to position (8, 116) pixel
     tft.print( b_dzuhur );
@@ -171,10 +163,10 @@ void JSF()
   client.setInsecure();                             // use with caution
   client.connect ( "api.myquran.com", 80 );
 
-  // url request construct
+// url request construct
   HTTPClient https;
   String url = "https://api.myquran.com/v1/sholat/jadwal/";
-  url = url + id_kota + "/" + year(unix_epoch) + "/" + month(unix_epoch) + "/" + day(unix_epoch);
+  url = url + id_kota + "/" + year(loc_time) + "/" + month(loc_time) + "/" + day(loc_time);
 
   // requesting the table
   Serial.println ( url );
@@ -184,7 +176,7 @@ void JSF()
   Serial.print ( payload );
   Serial.print ( "\r\n\r\n" );
 
-  // deserialize JSON payload
+// deserialize JSON payload
   DynamicJsonDocument doc (1024);
   DeserializationError error = deserializeJson(doc, payload);
   JsonObject results = doc [ "data" ][ "jadwal" ];
@@ -197,7 +189,7 @@ void JSF()
   String maghrib  = results[ "maghrib" ];
   String isya     = results[ "isya" ];
 
-  // convert string to character
+// convert string to character
   imsak.toCharArray   (b_imsak,   10);
   subuh.toCharArray   (b_subuh,   10);
   terbit.toCharArray  (b_terbit,  10);
@@ -207,7 +199,7 @@ void JSF()
   maghrib.toCharArray (b_maghrib, 10);
   isya.toCharArray    (b_isya,    10);
 
-  // on JSON deserialization error
+// on JSON deserialization error
   if ( error ) {
     Serial.print (F( "deserializeJson() failed: " ));
     Serial.println ( error.c_str() );
@@ -244,13 +236,13 @@ void NCSF()
 // SETUP
 void setup()
 {
-  // initializing 1.8" TFT display
+// initializing 1.8" TFT display
   analogWrite(led_pin, duty_cycle);                 // set display brightness
   tft.initR(INITR_BLACKTAB);                        // initialize TFT display with ST7735 chip
-  tft.setRotation(1);                               // set display orientation
+  tft.setRotation(display_ori);                               // set display orientation
   tft.fillScreen(BLACK);                            // blanking display
 
-  // initializing Serial Port
+// initializing Serial Port
   Serial.begin(115200);                             // set serial port speed
   delay (3000);                                     // 3 seconds delay
 
@@ -263,7 +255,7 @@ void setup()
 
     // reset settings - wipe stored credentials for testing
     // these are stored by the esp library
-    wfm.resetSettings();
+//    wfm.resetSettings();
 
     Serial.println("WiFi connecting");
     tft.setCursor(38, 20);                          // move cursor to position (38, 20) pixel
@@ -272,8 +264,8 @@ void setup()
     if (!wfm.autoConnect( "JamSholat" )) {
       // Did not connect, print error message
       Serial.println("failed to connect and hit timeout");
-      tft.setCursor(40, 30);                        // move cursor to position (40, 30) pixel
-      tft.print("failed to connect and hit timeout");
+      tft.setCursor(40, 10);                        // move cursor to position (40, 10) pixel
+      tft.print("failed to connect");
    
       // Reset and try again
       ESP.restart();
@@ -293,24 +285,26 @@ void setup()
   // set hostname
   WiFi.setHostname(new_hostname.c_str());
 
-// Initializing NTP client
-  timeClient.begin();
-  delay(500);
-  timeClient.update();                              // requesting time from NTP server
-  delay(500);
-  unix_epoch = timeClient.getEpochTime();           // get UNIX Epoch time from NTP server
-  delay(500);
+  // priming eztime library
+  setServer(ntp_pool);                              // set NTP server
+  while (timeStatus()!=timeSet)                     // wait until time synced
+  {
+    events();                                       // allow ezTime to sync
+    delay(1000);
+  }
+  my_tz.setLocation(t_zone);
+  loc_time = my_tz.now();
 
-  JSF();                                            // requesting Jam Sholat function
+  JSF();                                            // initialize Jam Sholat Function
   delay(500);
-  SCF();                                            // requesting Static Content function
+  SDF();                                            // requesting Static Display Function
 }
 
 // MAIN LOOP
 void loop()
 {
-  CSTF();                                          // requesting Clock and Salat Time function
-  NCSF();                                          // requesting NTP Clock Status function
+  CSTF();                                          // requesting Clock and Salat Time
+  NCSF();                                          // requesting NTP Clock Status
   events();                                        // update ntp
 }
 
