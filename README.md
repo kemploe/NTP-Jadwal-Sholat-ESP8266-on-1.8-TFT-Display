@@ -73,7 +73,7 @@ Once connected to the internet, it will start to synchronize and fetch the unix 
 
 ![image](https://github.com/kemploe/NTP-Jadwal-Sholat-ESP8266-on-1.8-TFT-Display/blob/main/images/2022-07-10_030431-1.png)
 
-NTP sync status is displayed on the upper left side display inside the vertical rectangle. 
+NTP sync status is displayed on the upper left inside the vertical frame as shown on the above picture. 
 
 NTP is displayed in green indicates it is good and synced in the last 1 hour.
 
