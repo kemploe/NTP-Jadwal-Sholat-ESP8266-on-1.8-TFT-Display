@@ -81,4 +81,6 @@ NTP is displayed in yellow indicates it is synced in the last 1 - 24 hour.
 
 NTP is displayed in red indicates it is stale or out of sync.
 
+THANK YOU
 
+https://github.com/bhall66
