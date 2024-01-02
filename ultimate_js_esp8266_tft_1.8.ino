@@ -164,7 +164,7 @@ void JSF()
 
 // url request construct
   HTTPClient https;
-  String url = "https://api.myquran.com/v1/sholat/jadwal/";
+  String url = "https://api.myquran.com/v2/sholat/jadwal/";
   url = url + id_kota + "/" + year(loc_time) + "/" + month(loc_time) + "/" + day(loc_time);
 
   // requesting the table
