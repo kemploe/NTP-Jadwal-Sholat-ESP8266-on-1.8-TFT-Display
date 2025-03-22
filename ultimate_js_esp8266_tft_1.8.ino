@@ -176,7 +176,7 @@ void JSF()
   Serial.print ( "\r\n\r\n" );
 
 // deserialize JSON payload
-  DynamicJsonDocument doc (1024);
+  JsonDocument doc;
   DeserializationError error = deserializeJson(doc, payload);
   JsonObject results = doc [ "data" ][ "jadwal" ];
   String imsak    = results[ "imsak" ];
