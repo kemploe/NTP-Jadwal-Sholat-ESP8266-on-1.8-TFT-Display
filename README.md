@@ -84,3 +84,5 @@ NTP is displayed in red indicates it is stale or out of sync.
 THANK YOU
 
 [Bruce E. Hall - W8BH](https://github.com/bhall66)
+
+[Rop Gonggrijp - ezTime](https://github.com/ropg/ezTime)
